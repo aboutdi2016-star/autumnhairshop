@@ -108,6 +108,7 @@ button:focus-visible { outline: 4px solid #3E6FA8; outline-offset: 3px; }
 }
 .order-card .sw { width: 40px; height: 34px; border-radius: 10px; border: 2px solid #2D3142; }
 .say { margin: 0; font-size: clamp(18px, 2.4vw, 24px); line-height: 1.35; }
+.say-line { display: block; word-break: keep-all; overflow-wrap: break-word; text-wrap: balance; }
 .who { display: block; font-size: 15px; color: var(--muted); margin-bottom: 2px; }
 
 .palette {
@@ -485,7 +486,19 @@ button:focus-visible { outline: 4px solid #3E6FA8; outline-offset: 3px; }
     }
     return '<svg width="40" height="40" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>자유';
   }
-  function setBubble(text) { $('sayText').textContent = text; }
+  function setLines(node, text) {
+    node.textContent = '';
+    var parts = String(text).match(/[^.!?]+[.!?]*/g) || [text];
+    parts.forEach(function (s) {
+      s = s.trim();
+      if (!s) return;
+      var span = document.createElement('span');
+      span.className = 'say-line';
+      span.textContent = s;
+      node.appendChild(span);
+    });
+  }
+  function setBubble(text) { setLines($('sayText'), text); }
 
   /* ---------- customer ---------- */
   function inCrown(c, x, y) {
@@ -702,7 +715,7 @@ button:focus-visible { outline: 4px solid #3E6FA8; outline-offset: 3px; }
     setBubble(line);
     setTimeout(function () {
       $('mirrorImg').src = stageImageURL();
-      $('resultText').textContent = line;
+      setLines($('resultText'), line);
       var st = $('stars'); st.classList.remove('show'); void st.offsetWidth; st.classList.add('show');
       $('result').hidden = false;
       $('nextBtn').focus();
