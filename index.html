@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>가을 나무 미용실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+:root {
+  --bg: #E4F1EB;
+  --panel: #FFFDF7;
+  --ink: #2D3142;
+  --muted: #5A6070;
+  --sel: #FFE08A;
+  --gold: #E7B53C;
+  --gold-ink: #3A2C05;
+  --scrim: rgba(45, 49, 66, 0.55);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #18221F;
+    --panel: #26302E;
+    --ink: #F1F3F6;
+    --muted: #B8BEC9;
+    --sel: #7A6420;
+    --scrim: rgba(0, 0, 0, 0.6);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #18221F;
+  --panel: #26302E;
+  --ink: #F1F3F6;
+  --muted: #B8BEC9;
+  --sel: #7A6420;
+  --scrim: rgba(0, 0, 0, 0.6);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 4px solid #3E6FA8; outline-offset: 3px; }
+
+#app { height: 100%; display: flex; flex-direction: column; }
+
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px 6px;
+}
+.sign { font-size: 26px; letter-spacing: 0.5px; }
+.name-input {
+  width: 100%; max-width: 360px; min-height: 64px; padding: 0 16px;
+  border: 3px solid var(--ink); border-radius: 18px; background: #FFFFFF; color: #2D3142;
+  font: inherit; font-size: 28px; text-align: center;
+  -webkit-user-select: text; user-select: text;
+}
+.text-btn {
+  min-height: 52px; padding: 0 18px; border-radius: 16px;
+  border: 3px solid var(--ink); background: var(--panel); font-size: 18px;
+}
+.card.wide { width: min(880px, 100%); }
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; width: 100%; }
+.pick {
+  min-height: 160px; border: 3px solid var(--ink); border-radius: 22px; background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 14px 8px; position: relative; font-size: 19px;
+}
+.pick small { font-size: 15px; color: var(--muted); }
+.pick .badge { position: absolute; top: 8px; right: 8px; }
+.pick-icon { width: 64px; height: 64px; border-radius: 50%; background: #CFE7DE; border: 2px solid #2D3142; display: flex; align-items: center; justify-content: center; }
+.icon-btn {
+  width: 52px; height: 52px; border-radius: 16px;
+  border: 3px solid var(--ink); background: var(--panel);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.stage-wrap { position: relative; flex: 1; min-height: 0; display: flex; }
+#stage { width: 100%; height: 100%; touch-action: none; display: block; }
+
+.bubble {
+  position: absolute; top: 8px; left: 12px;
+  max-width: min(460px, 58%);
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 24px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  z-index: 2;
+}
+.bubble.nudge { animation: nudge .45s ease; }
+@keyframes nudge { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+.order-card {
+  flex-shrink: 0; width: 72px; height: 72px; border-radius: 16px;
+  border: 3px solid var(--ink); background: #FFFFFF;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: #2D3142; font-size: 14px;
+}
+.order-card .sw { width: 40px; height: 34px; border-radius: 10px; border: 2px solid #2D3142; }
+.say { margin: 0; font-size: clamp(18px, 2.4vw, 24px); line-height: 1.35; }
+.who { display: block; font-size: 15px; color: var(--muted); margin-bottom: 2px; }
+
+.palette {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; padding: 6px 12px 4px;
+}
+.palette[hidden] { display: none; }
+.swatch {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 3px solid var(--ink); position: relative;
+}
+.swatch[aria-pressed="true"] { box-shadow: 0 0 0 5px var(--bg), 0 0 0 9px var(--ink); }
+
+.tools {
+  display: flex; justify-content: center; align-items: stretch; gap: 12px;
+  padding: 8px 12px 14px;
+  flex-wrap: wrap;
+}
+.tool {
+  width: 104px; min-height: 88px; border-radius: 22px;
+  border: 3px solid var(--ink); background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 17px;
+}
+.tool[aria-pressed="true"] { background: var(--sel); transform: translateY(-3px); }
+.tool.done-btn { width: 132px; background: var(--gold); color: var(--gold-ink); }
+.tool.done-btn.ready { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.07) } }
+
+.leaf path { transition: fill .25s ease, stroke .25s ease; }
+#crownWrap.sway { animation: sway .5s ease-in-out infinite alternate; transform-box: view-box; transform-origin: 400px 380px; }
+@keyframes sway { from { transform: rotate(-2.5deg) } to { transform: rotate(2.5deg) } }
+#wind path { animation: windflow .5s linear infinite; }
+@keyframes windflow { from { stroke-dashoffset: 40 } to { stroke-dashoffset: 0 } }
+
+.overlay {
+  position: fixed; inset: 0; background: var(--scrim);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  z-index: 10;
+}
+.overlay[hidden] { display: none; }
+.card {
+  background: var(--panel); border: 3px solid var(--ink); border-radius: 28px;
+  padding: 26px 26px 22px; width: min(520px, 100%);
+  display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+  max-height: 100%; overflow: auto;
+}
+.card h1, .card h2 { margin: 0; font-weight: 400; }
+.card h1 { font-size: 40px; }
+.card h2 { font-size: 32px; }
+.card p { margin: 0; font-size: 20px; line-height: 1.45; color: var(--muted); }
+.big-btn {
+  min-height: 64px; padding: 0 28px; border-radius: 20px;
+  border: 3px solid var(--ink); background: var(--gold); color: var(--gold-ink);
+  font-size: 22px;
+}
+.big-btn.plain { background: var(--panel); color: var(--ink); }
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.mirror {
+  width: min(320px, 72vw); aspect-ratio: 4 / 3.2;
+  border: 14px solid var(--gold); border-radius: 50%;
+  overflow: hidden; background: #CFE7DE;
+  box-shadow: inset 0 0 0 3px #2D3142, 0 0 0 3px #2D3142;
+}
+.mirror img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
+.stars { display: flex; gap: 8px; }
+.stars svg { opacity: 0; transform: scale(.4); }
+.stars.show svg { animation: pop .4s ease forwards; }
+.stars.show svg:nth-child(2) { animation-delay: .18s; }
+.stars.show svg:nth-child(3) { animation-delay: .36s; }
+@keyframes pop { to { opacity: 1; transform: scale(1); } }
+.photo-preview { width: 100%; border-radius: 16px; border: 3px solid var(--ink); display: block; -webkit-user-select: auto; user-select: auto; -webkit-touch-callout: default; }
+
+@media (max-width: 640px) {
+  .tool { width: 76px; min-height: 76px; font-size: 14px; }
+  .tool.done-btn { width: 96px; }
+  .sign { font-size: 20px; }
+  .bubble { max-width: calc(100% - 24px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tool.done-btn.ready, #crownWrap.sway, .bubble.nudge { animation: none; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="sign" id="sign">가을 나무 미용실</div>
+    <button class="text-btn" id="pickBtn">손님 고르기</button>
+  </header>
+
+  <main class="stage-wrap">
+    <div class="bubble" id="bubble">
+      <div class="order-card" id="orderCard"></div>
+      <p class="say"><span class="who" id="who"></span><span id="sayText"></span></p>
+    </div>
+
+    <svg id="stage" viewBox="0 0 800 600" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미용실 의자에 앉은 나무 손님">
+      <rect x="0" y="0" width="800" height="470" fill="#CFE7DE"></rect>
+      <rect x="0" y="0" width="40" height="470" fill="#C3DFD4"></rect>
+      <rect x="120" y="0" width="40" height="470" fill="#C3DFD4"></rect>
+      <rect x="640" y="0" width="40" height="470" fill="#C3DFD4"></rect>
+      <rect x="760" y="0" width="40" height="470" fill="#C3DFD4"></rect>
+      <rect x="20" y="300" width="150" height="10" rx="4" fill="#B98B5E"></rect>
+      <rect x="34" y="250" width="24" height="50" rx="6" fill="#F08A7E" stroke="#2D3142" stroke-width="2.5"></rect>
+      <rect x="70" y="238" width="28" height="62" rx="6" fill="#F2C230" stroke="#2D3142" stroke-width="2.5"></rect>
+      <rect x="110" y="258" width="22" height="42" rx="6" fill="#8FB9E8" stroke="#2D3142" stroke-width="2.5"></rect>
+      <rect x="0" y="470" width="800" height="130" fill="#E8C690"></rect>
+      <path d="M0 512 H800 M0 556 H800" stroke="#D6AE72" stroke-width="3"></path>
+      <path d="M0 470 H800" stroke="#2D3142" stroke-width="3"></path>
+      <g id="floorLeaves"></g>
+      <rect x="320" y="392" width="160" height="130" rx="26" fill="#3E5C76" stroke="#2D3142" stroke-width="3"></rect>
+      <rect x="396" y="540" width="16" height="34" fill="#8C9199" stroke="#2D3142" stroke-width="2.5"></rect>
+      <ellipse cx="404" cy="578" rx="74" ry="11" fill="#8C9199" stroke="#2D3142" stroke-width="2.5"></ellipse>
+      <g id="customer">
+        <path d="M374 528 L382 350 L418 350 L426 528 Z" fill="#8A5A3B" stroke="#2D3142" stroke-width="3" stroke-linejoin="round"></path>
+        <g id="branches" stroke="#8A5A3B" stroke-width="11" stroke-linecap="round" fill="none">
+          <path d="M398 356 L336 270"></path>
+          <path d="M402 356 L470 280"></path>
+          <path d="M400 356 L400 230"></path>
+        </g>
+        <g id="crownWrap">
+          <g id="crown"></g>
+          <g id="fruits"></g>
+        </g>
+        <g id="face">
+          <circle cx="388" cy="414" r="5.5" fill="#2D3142"></circle>
+          <circle cx="412" cy="414" r="5.5" fill="#2D3142"></circle>
+          <circle cx="380" cy="428" r="5" fill="#F08A7E" opacity="0.8"></circle>
+          <circle cx="420" cy="428" r="5" fill="#F08A7E" opacity="0.8"></circle>
+          <path id="mouth" d="M392 428 Q400 434 408 428" stroke="#2D3142" stroke-width="3" fill="none" stroke-linecap="round"></path>
+        </g>
+        <path d="M350 470 L450 470 L482 530 L318 530 Z" fill="#F6F6F6" stroke="#2D3142" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M362 490 L438 490 M352 510 L448 510" stroke="#C9CED8" stroke-width="3"></path>
+      </g>
+      <rect x="290" y="516" width="220" height="30" rx="12" fill="#3E5C76" stroke="#2D3142" stroke-width="3"></rect>
+      <g id="flying"></g>
+      <g id="wind" style="display:none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="14 10">
+        <path d="M0 -20 Q 30 -30 60 -20"></path>
+        <path d="M0 0 Q 34 -8 70 0"></path>
+        <path d="M0 20 Q 30 12 60 20"></path>
+      </g>
+      <circle id="cursor" r="30" fill="none" stroke="#2D3142" stroke-width="3" stroke-dasharray="6 6" style="display:none"></circle>
+    </svg>
+  </main>
+
+  <div class="palette" id="palette" role="group" aria-label="염색 색깔"></div>
+
+  <nav class="tools" aria-label="미용 도구">
+    <button class="tool" data-tool="brush" aria-pressed="true">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8l-2.9-2.9z"></path><path d="M9.1 11.9c-2 0-3.6 1.6-3.6 3.6 0 1.5-1 2.6-2.5 3 1 1.6 2.8 2.5 4.6 2.5 2.9 0 4.4-2.4 4.4-4.4z"></path></svg>
+      염색 붓
+    </button>
+    <button class="tool" data-tool="scissors" aria-pressed="false">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M20 4L8.12 15.88"></path><path d="M14.47 14.48L20 20"></path><path d="M8.12 8.12L12 12"></path></svg>
+      가위
+    </button>
+    <button class="tool" data-tool="dryer" aria-pressed="false">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a5 5 0 0 1 5-5h7v10H8a5 5 0 0 1-5-5z"></path><path d="M9 14l-1 7h4l1-7"></path><path d="M18 6h3M18 9h4M18 12h3"></path></svg>
+      드라이기
+    </button>
+    <button class="tool done-btn" id="doneBtn">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="10" rx="7" ry="8"></ellipse><path d="M12 18v4M8 22h8"></path><path d="M9 7l2-2M9 11l5-5"></path></svg>
+      다 됐어요
+    </button>
+  </nav>
+</div>
+
+<div class="overlay" id="welcome">
+  <div class="card">
+    <h1>가을 나무 미용실</h1>
+    <p>어떤 나무 손님의 머리를 꾸며 줄까요?</p>
+    <button class="big-btn" id="welcomeBtn">시작하기</button>
+  </div>
+</div>
+
+<div class="overlay" id="nameStep" hidden>
+  <div class="card">
+    <h2>미용사 선생님의 이름은?</h2>
+    <p>이름을 쓰면 나만의 미용실이 돼요.</p>
+    <input class="name-input" id="nameInput" type="text" maxlength="8" autocomplete="off" placeholder="이름" aria-label="이름">
+    <p id="namePreview" style="font-size: 22px; color: var(--ink)">가을 나무 미용실</p>
+    <button class="big-btn" id="nameBtn">미용실 문 열기</button>
+  </div>
+</div>
+
+<div class="overlay" id="intro" hidden>
+  <div class="card wide">
+    <h1 id="pickTitle">가을 나무 미용실</h1>
+    <p>어떤 나무 손님의 머리를 꾸며 줄까요?</p>
+    <div class="pick-grid" id="pickGrid"></div>
+    <button class="text-btn" id="renameBtn">이름 바꾸기</button>
+  </div>
+</div>
+
+<div class="overlay" id="treePick" hidden>
+  <div class="card wide">
+    <h2>어떤 나무를 꾸며 볼까요?</h2>
+    <p>마음대로 꾸밀 나무 손님을 골라 주세요.</p>
+    <div class="pick-grid" id="treeGrid"></div>
+    <button class="text-btn" id="treeBack">돌아가기</button>
+  </div>
+</div>
+
+<div class="overlay" id="result" hidden>
+  <div class="card">
+    <div class="mirror"><img id="mirrorImg" alt="완성된 나무 손님 머리"></div>
+    <div class="stars" id="stars">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"></path></svg>
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"></path></svg>
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"></path></svg>
+    </div>
+    <h2 id="resultText">마음에 들어요!</h2>
+    <div class="btn-row">
+      <button class="big-btn plain" id="photoBtn">사진 저장</button>
+      <button class="big-btn" id="nextBtn">다른 손님 고르기</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="photoModal" hidden>
+  <div class="card">
+    <h2>사진이 준비됐어요</h2>
+    <img class="photo-preview" id="photoPreview" alt="저장할 나무 손님 사진">
+    <div class="btn-row"><button class="big-btn" id="photoDl">사진 내려받기</button><button class="big-btn plain" id="photoClose">닫기</button></div>
+    <p id="photoHint"></p>
+  </div>
+</div>
+
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var INK = '#2D3142';
+  var COLORS = { yellow: '#F2C230', orange: '#EF8A2A', red: '#D9452F', brown: '#9A6236', green: '#58A04E', blue: '#3E7BD6', purple: '#8E5BC7' };
+  var COLOR_NAME = { yellow: '노랑', orange: '주황', red: '빨강', brown: '갈색', green: '초록', blue: '파랑', purple: '보라' };
+  var COLOR_ADV = { yellow: '노랗게', orange: '주황색으로', red: '빨갛게', brown: '갈색으로', green: '초록색으로', blue: '파랗게', purple: '보라색으로' };
+
+  var SHAPES = {
+    ginkgo: 'M0 14 C -10 10 -20 0 -20 -12 C -14 -18 -6 -18 -2 -14 L 0 -9 L 2 -14 C 6 -18 14 -18 20 -12 C 20 0 10 10 0 14 Z M0 14 L0 21',
+    maple: 'M0 -18.5 L2.9 -10.9 L7.6 -13.4 L6.3 -6.3 L14.3 -9.2 L11.3 -2.1 L18.5 0.8 L10.1 4.2 L12.2 9.7 L3.4 6.7 L0 12.6 L-3.4 6.7 L-12.2 9.7 L-10.1 4.2 L-18.5 0.8 L-11.3 -2.1 L-14.3 -9.2 L-6.3 -6.3 L-7.6 -13.4 L-2.9 -10.9 Z M0 12.6 L0 19',
+    oval: 'M0 -18 C 12 -10 12 10 0 18 C -12 10 -12 -10 0 -18 Z M0 -16 L0 16',
+    needle: 'M0 16 L-12 -12 M0 16 L-5 -17 M0 16 L5 -17 M0 16 L12 -12'
+  };
+
+  var CUSTOMERS = [
+    { name: '은행나무 손님', shape: 'ginkgo', start: COLORS.green, order: { type: 'color', color: 'yellow' },
+      say: '안녕하세요! 제 머리를 노랗게 염색해 주세요!' },
+    { name: '단풍나무 손님', shape: 'maple', start: COLORS.green, order: { type: 'color', color: 'red' },
+      say: '반가워요! 저는 빨갛게 염색하고 싶어요!' },
+    { name: '감나무 손님', shape: 'oval', start: COLORS.green, fruits: true, order: { type: 'cut' },
+      say: '머리가 너무 길어요. 가위로 짧게 잘라 주세요!' },
+    { name: '소나무 손님', shape: 'needle', start: '#2F6B3A', pine: true, order: { type: 'dry' },
+      say: '저는 가을에도 초록 머리가 좋아요. 드라이기로 바람만 쐬어 주세요!' },
+    { name: '느티나무 손님', shape: 'oval', start: COLORS.green, order: { type: 'free' },
+      say: '마음대로 멋지게 해 주세요!' }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('stage'), crown = $('crown'), fruitsG = $('fruits'), floorG = $('floorLeaves'), flyingG = $('flying');
+  var crownWrap = $('crownWrap'), customerG = $('customer'), windG = $('wind'), cursor = $('cursor'), mouth = $('mouth');
+
+  var S = {
+    i: 0, done: {}, shop: '', tool: 'brush', color: 'yellow', leaves: [], startCount: 0,
+    dryMs: 0, actions: 0, down: false, busy: true, sound: true, audio: null,
+    lastSnip: 0, lastBlow: 0, lastFrame: 0, pointer: { x: 400, y: 300 }
+  };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // downloads capability (may be null outside the viewer)
+  var downloadsPromise = (window.claude && typeof window.claude.use === 'function')
+    ? window.claude.use('downloads').catch(function () { return null; })
+    : Promise.resolve(null);
+
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  /* ---------- success sound ---------- */
+  var audioCtx = null;
+  function playChime() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      var t = audioCtx.currentTime + 0.02;
+      [523, 659, 784, 1047].forEach(function (f, k) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'triangle'; o.frequency.value = f;
+        var st = t + k * 0.11;
+        g.gain.setValueAtTime(0.0001, st);
+        g.gain.exponentialRampToValueAtTime(0.28, st + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, st + (k === 3 ? 0.9 : 0.35));
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(st); o.stop(st + 1);
+      });
+      [1568, 2093].forEach(function (f, k) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        var st = t + 0.48 + k * 0.09;
+        g.gain.setValueAtTime(0.0001, st);
+        g.gain.exponentialRampToValueAtTime(0.12, st + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, st + 0.5);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(st); o.stop(st + 0.6);
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- UI bits ---------- */
+  function renderPicks() {
+    var g = $('pickGrid'); g.innerHTML = '';
+    var labels = { color: function (o) { return COLOR_ADV[o.color] + ' 염색'; }, cut: function () { return '짧게 자르기'; }, dry: function () { return '바람 쐬기'; }, free: function () { return '마음대로 꾸미기'; } };
+    CUSTOMERS.forEach(function (c, idx) {
+      var b = document.createElement('button');
+      b.className = 'pick';
+      var leaf = c.shape === 'needle'
+        ? '<path d="' + SHAPES.needle + '" fill="none" stroke="' + c.start + '" stroke-width="4.5" stroke-linecap="round"/>'
+        : '<path d="' + SHAPES[c.shape] + '" fill="' + (c.order.type === 'color' ? COLORS[c.order.color] : c.start) + '" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"/>';
+      var star = S.done[idx] ? '<svg class="badge" width="32" height="32" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>' : '';
+      b.innerHTML = '<span class="pick-icon"><svg width="48" height="48" viewBox="-24 -24 48 48" aria-hidden="true">' + leaf + '</svg></span>' + c.name + '<small>' + labels[c.order.type](c.order) + '</small>';
+      b.setAttribute('aria-label', c.name + ', ' + labels[c.order.type](c.order));
+      if (c.order.type === 'free') {
+        b.innerHTML = '<span class="pick-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg></span>마음대로 꾸미기<small>나무를 골라요</small>';
+        b.setAttribute('aria-label', '마음대로 꾸미기, 나무를 골라요');
+      }
+      b.addEventListener('click', function () {
+        if (c.order.type === 'free') { openTreePick(); return; }
+        $('intro').hidden = true;
+        S.i = idx; S.busy = false;
+        buildCustomer();
+      });
+      g.appendChild(b);
+    });
+  }
+  function openPicker() {
+    S.busy = true; S.down = false;
+    renderPicks();
+    $('result').hidden = true;
+    $('intro').hidden = false;
+  }
+  function renderPalette() {
+    var p = $('palette'); p.innerHTML = '';
+    ['yellow', 'orange', 'red', 'brown', 'green', 'blue', 'purple'].forEach(function (c) {
+      var b = document.createElement('button');
+      b.className = 'swatch'; b.style.background = COLORS[c];
+      b.setAttribute('aria-label', COLOR_NAME[c] + ' 염색약');
+      b.setAttribute('aria-pressed', String(S.color === c));
+      b.addEventListener('click', function () { S.color = c; renderPalette(); });
+      p.appendChild(b);
+    });
+    p.hidden = S.tool !== 'brush';
+  }
+  function setTool(t) {
+    S.tool = t;
+    document.querySelectorAll('.tool[data-tool]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-tool') === t));
+    });
+    renderPalette();
+  }
+  function orderCardHTML(o) {
+    if (o.type === 'color') {
+      return '<span class="sw" style="background:' + COLORS[o.color] + '"></span>' + COLOR_NAME[o.color];
+    }
+    if (o.type === 'cut') {
+      return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D3142" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>가위';
+    }
+    if (o.type === 'dry') {
+      return '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D3142" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a5 5 0 0 1 5-5h7v10H8a5 5 0 0 1-5-5z"/><path d="M9 14l-1 7h4l1-7"/><path d="M18 6h3M18 9h4M18 12h3"/></svg>바람';
+    }
+    return '<svg width="40" height="40" viewBox="0 0 24 24" fill="#F2C230" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>자유';
+  }
+  function setBubble(text) { $('sayText').textContent = text; }
+
+  /* ---------- customer ---------- */
+  function inCrown(c, x, y) {
+    if (c.pine) {
+      if (y < 70 || y > 372) return false;
+      var half = (y - 56) * 0.72;
+      return Math.abs(x - 400) <= half;
+    }
+    var dx = (x - 400) / 212, dy = (y - 222) / 152;
+    return dx * dx + dy * dy <= 1;
+  }
+  function makeLeaf(c, x, y) {
+    var g = el('g', { class: 'leaf', transform: 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + rand(-40, 40).toFixed(0) + ')' }, crown);
+    var inner = el('g', {}, g);
+    var p;
+    if (c.shape === 'needle') {
+      p = el('path', { d: SHAPES.needle, fill: 'none', stroke: c.start, 'stroke-width': '4.5', 'stroke-linecap': 'round' }, inner);
+    } else {
+      p = el('path', { d: SHAPES[c.shape], fill: c.start, stroke: INK, 'stroke-width': '1.6', 'stroke-linejoin': 'round' }, inner);
+    }
+    return { g: g, inner: inner, p: p, x: x, y: y, color: c.start, needle: c.shape === 'needle', state: 'on' };
+  }
+  function setLeafColor(l, hex) {
+    if (l.needle) l.p.setAttribute('stroke', hex); else l.p.setAttribute('fill', hex);
+    l.color = hex;
+  }
+  function buildCustomer() {
+    var c = CUSTOMERS[S.i];
+    crown.innerHTML = ''; fruitsG.innerHTML = ''; floorG.innerHTML = ''; flyingG.innerHTML = '';
+    S.leaves = []; S.dryMs = 0; S.actions = 0;
+    var step = c.pine ? 24 : 28;
+    for (var y = 60; y <= 390; y += step) {
+      for (var x = 170; x <= 630; x += step) {
+        var jx = x + rand(-8, 8), jy = y + rand(-8, 8);
+        if (inCrown(c, jx, jy)) S.leaves.push(makeLeaf(c, jx, jy));
+      }
+    }
+    S.startCount = S.leaves.length;
+    if (c.fruits) {
+      [[330, 200], [455, 165], [400, 290], [500, 260], [300, 300]].forEach(function (pt) {
+        var f = el('g', { transform: 'translate(' + pt[0] + ' ' + pt[1] + ')' }, fruitsG);
+        el('circle', { r: '14', fill: '#EF7D22', stroke: INK, 'stroke-width': '2.2' }, f);
+        el('path', { d: 'M-6 -12 L0 -9 L6 -12 L0 -15 Z', fill: '#4E7F3A', stroke: INK, 'stroke-width': '1.5', 'stroke-linejoin': 'round' }, f);
+      });
+    }
+    mouth.setAttribute('d', 'M392 428 Q400 434 408 428');
+    $('who').textContent = c.name;
+    $('orderCard').innerHTML = orderCardHTML(c.order);
+    setBubble(c.say);
+    S.color = c.order.type === 'color' ? 'yellow' : S.color;
+    setTool(c.order.type === 'cut' ? 'scissors' : c.order.type === 'dry' ? 'dryer' : 'brush');
+    updateReady();
+    if (!reduceMotion && customerG.animate) {
+      customerG.animate([{ transform: 'translateX(560px)' }, { transform: 'translateX(0)' }], { duration: 700, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    }
+  }
+
+  /* ---------- goals ---------- */
+  function attached() { return S.leaves.filter(function (l) { return l.state === 'on'; }); }
+  function goalMet() {
+    var c = CUSTOMERS[S.i], on = attached();
+    if (c.order.type === 'color') {
+      if (!on.length) return false;
+      var hit = on.filter(function (l) { return l.color === COLORS[c.order.color]; }).length;
+      return hit / on.length >= 0.5;
+    }
+    if (c.order.type === 'cut') return on.length / S.startCount <= 0.65;
+    if (c.order.type === 'dry') return S.dryMs >= 2500;
+    return S.actions >= 3 || S.dryMs >= 800;
+  }
+  function hintText() {
+    var c = CUSTOMERS[S.i];
+    if (c.order.type === 'color') return '조금 더 ' + COLOR_ADV[c.order.color] + ' 해 주세요!';
+    if (c.order.type === 'cut') return '조금 더 짧게 잘라 주세요!';
+    if (c.order.type === 'dry') return '바람을 조금 더 쐬어 주세요!';
+    return '머리를 조금 더 꾸며 주세요!';
+  }
+  function updateReady() { $('doneBtn').classList.toggle('ready', goalMet()); }
+
+  /* ---------- tools ---------- */
+  function toSvg(e) {
+    var pt = stage.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    var m = stage.getScreenCTM(); if (!m) return { x: 0, y: 0 };
+    var r = pt.matrixTransform(m.inverse()); return { x: r.x, y: r.y };
+  }
+  function brushAt(p) {
+    var hex = COLORS[S.color], changed = false;
+    S.leaves.forEach(function (l) {
+      if (l.state !== 'on' || l.color === hex) return;
+      var dx = l.x - p.x, dy = l.y - p.y;
+      if (dx * dx + dy * dy <= 38 * 38) { setLeafColor(l, hex); changed = true; }
+    });
+    if (changed) { S.actions++; updateReady(); }
+  }
+  function fall(l) {
+    l.state = 'falling';
+    var fx = rand(90, 710), fy = rand(500, 590), rot = rand(-200, 200);
+    var dx = fx - l.x, dy = fy - l.y;
+    var dur = reduceMotion ? 300 : 1300 + rand(0, 500);
+    flyingG.appendChild(l.g);
+    var a = l.inner.animate([
+      { transform: 'translate(0px,0px) rotate(0deg)' },
+      { transform: 'translate(' + (dx * 0.3 + rand(-40, 40)) + 'px,' + (dy * 0.35) + 'px) rotate(' + (rot * 0.4) + 'deg)' },
+      { transform: 'translate(' + (dx * 0.7 + rand(-30, 30)) + 'px,' + (dy * 0.7) + 'px) rotate(' + (rot * 0.7) + 'deg)' },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg)' }
+    ], { duration: dur, easing: 'ease-in', fill: 'forwards' });
+    a.onfinish = function () {
+      l.g.setAttribute('transform', 'translate(' + fx.toFixed(1) + ' ' + fy.toFixed(1) + ') rotate(' + rot.toFixed(0) + ') scale(0.8)');
+      a.cancel();
+      floorG.appendChild(l.g);
+      l.state = 'floor';
+    };
+  }
+  function blowAway(l, dir) {
+    l.state = 'gone';
+    flyingG.appendChild(l.g);
+    var a = l.inner.animate([
+      { transform: 'translate(0px,0px) rotate(0deg)', opacity: 1 },
+      { transform: 'translate(' + (dir * 520) + 'px,' + rand(-120, 60) + 'px) rotate(' + (dir * 360) + 'deg)', opacity: 0.9 }
+    ], { duration: reduceMotion ? 300 : 1100, easing: 'ease-in', fill: 'forwards' });
+    a.onfinish = function () { if (l.g.parentNode) l.g.parentNode.removeChild(l.g); };
+  }
+  function cutAt(p) {
+    var now = performance.now();
+    if (now - S.lastSnip < 90) return;
+    var best = null, bd = 30 * 30;
+    S.leaves.forEach(function (l) {
+      if (l.state !== 'on') return;
+      var dx = l.x - p.x, dy = l.y - p.y, d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = l; }
+    });
+    if (best) { S.lastSnip = now; fall(best); S.actions++; updateReady(); }
+  }
+  function dryLoop(ts) {
+    if (!S.down || S.tool !== 'dryer') return;
+    var dt = S.lastFrame ? Math.min(ts - S.lastFrame, 100) : 16;
+    S.lastFrame = ts; S.dryMs += dt;
+    var dir = S.pointer.x < 400 ? 1 : -1;
+    windG.setAttribute('transform', 'translate(' + (S.pointer.x + (dir > 0 ? 10 : -10)) + ' ' + S.pointer.y + ') scale(' + dir + ' 1)');
+    var c = CUSTOMERS[S.i];
+    var on = attached();
+    if (ts - S.lastBlow > 650 && on.length / S.startCount > 0.45 && !c.pine) {
+      S.lastBlow = ts;
+      blowAway(on[Math.floor(Math.random() * on.length)], dir);
+    }
+    updateReady();
+    requestAnimationFrame(dryLoop);
+  }
+  function startDry() {
+    crownWrap.classList.add('sway');
+    windG.style.display = '';
+    S.lastFrame = 0; S.lastBlow = performance.now();
+    requestAnimationFrame(dryLoop);
+  }
+  function stopDry() {
+    crownWrap.classList.remove('sway');
+    windG.style.display = 'none';
+    if (S.dryMs > 0) S.actions++;
+    updateReady();
+  }
+
+  stage.addEventListener('pointerdown', function (e) {
+    if (S.busy) return;
+    stage.setPointerCapture(e.pointerId);
+    S.down = true;
+    var p = toSvg(e); S.pointer = p;
+    if (S.tool === 'brush') { cursor.style.display = ''; cursor.setAttribute('cx', p.x); cursor.setAttribute('cy', p.y); brushAt(p); }
+    else if (S.tool === 'scissors') cutAt(p);
+    else if (S.tool === 'dryer') startDry();
+  });
+  stage.addEventListener('pointermove', function (e) {
+    if (!S.down || S.busy) return;
+    var p = toSvg(e); S.pointer = p;
+    if (S.tool === 'brush') { cursor.setAttribute('cx', p.x); cursor.setAttribute('cy', p.y); brushAt(p); }
+    else if (S.tool === 'scissors') cutAt(p);
+  });
+  function endPointer() {
+    if (!S.down) return;
+    S.down = false;
+    cursor.style.display = 'none';
+    if (S.tool === 'dryer') stopDry();
+  }
+  stage.addEventListener('pointerup', endPointer);
+  stage.addEventListener('pointercancel', endPointer);
+
+  document.querySelectorAll('.tool[data-tool]').forEach(function (b) {
+    b.addEventListener('click', function () { setTool(b.getAttribute('data-tool')); });
+  });
+
+  /* ---------- finish / mirror ---------- */
+  function stageImageURL() {
+    var clone = stage.cloneNode(true);
+    ['wind', 'cursor'].forEach(function (id) { var n = clone.querySelector('#' + id); if (n) n.parentNode.removeChild(n); });
+    var cw = clone.querySelector('#crownWrap'); if (cw) cw.removeAttribute('class');
+    clone.setAttribute('width', '800'); clone.setAttribute('height', '600');
+    clone.removeAttribute('style');
+    var xml = new XMLSerializer().serializeToString(clone);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  }
+  $('doneBtn').addEventListener('click', function () {
+    if (S.busy) return;
+    if (!goalMet()) {
+      var h = hintText();
+      setBubble(h);
+      var b = $('bubble'); b.classList.remove('nudge'); void b.offsetWidth; b.classList.add('nudge');
+      return;
+    }
+    S.busy = true;
+    S.done[S.i] = true;
+    playChime();
+    mouth.setAttribute('d', 'M388 424 Q400 442 412 424');
+    var c = CUSTOMERS[S.i];
+    var line = c.order.type === 'free' ? '우와, 정말 멋져요! 고마워요!' : '마음에 들어요! 고마워요!';
+    setBubble(line);
+    setTimeout(function () {
+      $('mirrorImg').src = stageImageURL();
+      $('resultText').textContent = line;
+      var st = $('stars'); st.classList.remove('show'); void st.offsetWidth; st.classList.add('show');
+      $('result').hidden = false;
+      $('nextBtn').focus();
+    }, reduceMotion ? 200 : 1500);
+  });
+  $('nextBtn').addEventListener('click', openPicker);
+
+  /* ---------- photo ---------- */
+  function makePhotoBlob() {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var cv = document.createElement('canvas'); cv.width = 1200; cv.height = 1020;
+        var ctx = cv.getContext('2d');
+        ctx.fillStyle = '#FFFDF7'; ctx.fillRect(0, 0, 1200, 1020);
+        ctx.drawImage(img, 0, 0, 1200, 900);
+        ctx.fillStyle = '#2D3142'; ctx.fillRect(0, 900, 1200, 4);
+        var c = CUSTOMERS[Math.min(S.i, CUSTOMERS.length - 1)];
+        var d = new Date();
+        var draw = function () {
+          ctx.fillStyle = '#2D3142';
+          ctx.textBaseline = 'middle';
+          ctx.font = '42px Jua, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+          ctx.fillText(shopTitle(), 40, 940);
+          ctx.fillStyle = '#5A6070';
+          ctx.font = '30px Jua, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+          ctx.fillText(c.name + '의 가을 머리', 40, 990);
+          ctx.textAlign = 'right';
+          ctx.fillText((d.getMonth() + 1) + '월 ' + d.getDate() + '일', 1160, 990);
+          cv.toBlob(function (b) { b ? resolve({ blob: b, url: cv.toDataURL('image/png') }) : reject(new Error('blob')); }, 'image/png');
+        };
+        (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(draw, draw);
+      };
+      img.onerror = reject;
+      img.src = $('mirrorImg').src || stageImageURL();
+    });
+  }
+  var pendingPhoto = null;
+  var coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  function showPhotoFallback(url, blob, filename) {
+    pendingPhoto = { url: url, blob: blob, filename: filename };
+    $('photoPreview').src = url;
+    $('photoHint').textContent = coarsePointer
+      ? '버튼으로 저장이 안 되면 사진을 길게 눌러서 저장해 주세요.'
+      : '버튼으로 저장이 안 되면 사진에서 마우스 오른쪽 버튼을 눌러 ‘이미지를 다른 이름으로 저장’을 골라 주세요.';
+    $('photoModal').hidden = false;
+    $('photoDl').focus();
+  }
+  $('photoDl').addEventListener('click', function () {
+    if (!pendingPhoto || !pendingPhoto.blob) return;
+    var ph = pendingPhoto, file = null;
+    try { file = new File([ph.blob], ph.filename, { type: 'image/png' }); } catch (e) {}
+    if (coarsePointer && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file] }).catch(function () {});
+      return;
+    }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(ph.blob);
+    a.download = ph.filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  });
+  $('photoBtn').addEventListener('click', function () {
+    var btn = $('photoBtn'); btn.disabled = true;
+    makePhotoBlob().then(function (res) {
+      var c = CUSTOMERS[Math.min(S.i, CUSTOMERS.length - 1)];
+      var filename = '가을나무미용실_' + c.name.replace(/\s/g, '') + '.png';
+      return downloadsPromise.then(function (dl) {
+        if (!dl) { showPhotoFallback(res.url, res.blob, filename); return; }
+        return dl.save({ filename: filename, data: res.blob }).then(function () {
+          btn.textContent = '저장했어요';
+        }, function (err) {
+          var code = err && err.code;
+          if (code === 'declined' || code === 'rate_limited') return;
+          showPhotoFallback(res.url, res.blob, filename);
+        });
+      });
+    }).catch(function () {}).then(function () {
+      btn.disabled = false;
+      setTimeout(function () { btn.textContent = '사진 저장'; }, 2000);
+    });
+  });
+  $('photoClose').addEventListener('click', function () { $('photoModal').hidden = true; $('photoBtn').focus(); });
+
+  $('pickBtn').addEventListener('click', openPicker);
+
+  function shopTitle(name) {
+    var n = name === undefined ? S.shop : name;
+    return n ? n + '의 가을 나무 미용실' : '가을 나무 미용실';
+  }
+  function applyName() {
+    var t = shopTitle();
+    $('sign').textContent = t;
+    $('pickTitle').textContent = t;
+    document.title = t;
+  }
+  function openNameStep() {
+    $('intro').hidden = true;
+    $('welcome').hidden = true;
+    $('nameInput').value = S.shop;
+    $('namePreview').textContent = shopTitle();
+    $('nameStep').hidden = false;
+    $('nameInput').focus();
+  }
+  function confirmName() {
+    S.shop = $('nameInput').value.trim().slice(0, 8);
+    applyName();
+    $('nameStep').hidden = true;
+    openPicker();
+  }
+  $('welcomeBtn').addEventListener('click', openNameStep);
+
+  var FREE_TREES = [
+    { name: '은행나무 손님', shape: 'ginkgo', start: COLORS.green, fruits: false, pine: false },
+    { name: '단풍나무 손님', shape: 'maple', start: COLORS.green, fruits: false, pine: false },
+    { name: '감나무 손님', shape: 'oval', start: COLORS.green, fruits: true, pine: false },
+    { name: '소나무 손님', shape: 'needle', start: '#2F6B3A', fruits: false, pine: true },
+    { name: '느티나무 손님', shape: 'oval', start: COLORS.green, fruits: false, pine: false }
+  ];
+  var FREE_INDEX = CUSTOMERS.length - 1;
+  function openTreePick() {
+    var g = $('treeGrid'); g.innerHTML = '';
+    FREE_TREES.forEach(function (t) {
+      var b = document.createElement('button');
+      b.className = 'pick';
+      var leaf = t.shape === 'needle'
+        ? '<path d="' + SHAPES.needle + '" fill="none" stroke="' + t.start + '" stroke-width="4.5" stroke-linecap="round"/>'
+        : '<path d="' + SHAPES[t.shape] + '" fill="' + t.start + '" stroke="#2D3142" stroke-width="1.6" stroke-linejoin="round"/>';
+      b.innerHTML = '<span class="pick-icon"><svg width="48" height="48" viewBox="-24 -24 48 48" aria-hidden="true">' + leaf + '</svg></span>' + t.name;
+      b.addEventListener('click', function () {
+        var c = CUSTOMERS[FREE_INDEX];
+        c.name = t.name; c.shape = t.shape; c.start = t.start; c.fruits = t.fruits; c.pine = t.pine;
+        $('treePick').hidden = true;
+        S.i = FREE_INDEX; S.busy = false;
+        buildCustomer();
+      });
+      g.appendChild(b);
+    });
+    $('intro').hidden = true;
+    $('treePick').hidden = false;
+  }
+  $('treeBack').addEventListener('click', function () { $('treePick').hidden = true; openPicker(); });
+  $('renameBtn').addEventListener('click', openNameStep);
+  $('nameBtn').addEventListener('click', confirmName);
+  $('nameInput').addEventListener('input', function () {
+    $('namePreview').textContent = shopTitle($('nameInput').value.trim().slice(0, 8));
+  });
+  $('nameInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); confirmName(); }
+  });
+
+  // initial paint (behind picker)
+  renderPicks();
+  renderPalette();
+  $('who').textContent = CUSTOMERS[0].name;
+  $('orderCard').innerHTML = orderCardHTML(CUSTOMERS[0].order);
+  setBubble(CUSTOMERS[0].say);
+})();
+</script>
+</body>
+</html>
